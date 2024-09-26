@@ -1,0 +1,6 @@
+@use '../../styles/variables' as *;
+
+.backLink {
+    color: $foreground;
+    text-decoration: none;
+  }
