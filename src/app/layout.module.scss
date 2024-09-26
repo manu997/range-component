@@ -1,5 +1,4 @@
-$foreground: #ffffff;
-$background: #171717;
+@use '../styles/variables' as *;
 
 .body {
   color: $foreground;
