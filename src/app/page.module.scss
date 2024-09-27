@@ -1,7 +1,8 @@
+@use '../styles/variables' as *;
+
 .menu {
   list-style: none;
   text-align: center;
-  
 
   ul {
     list-style: none;
@@ -17,7 +18,7 @@
   }
 
   a {
-    color: #fff;
+    color: $foreground;
     text-transform: uppercase;
     text-decoration: none;
     letter-spacing: 0.15em;
@@ -35,11 +36,11 @@
       height: 2px;
       left: 50%;
       position: absolute;
-      background: #fff;
+      background: $foreground;
       transition: width 0.3s ease, left 0.3s ease;
       width: 0;
     }
-    
+
     // Line below link when hover
     &:hover:after {
       width: 100%;

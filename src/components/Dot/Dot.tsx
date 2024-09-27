@@ -1,22 +1,21 @@
-import { useCallback, useMemo, useState } from 'react';
+import { CSSProperties, useCallback, useMemo, useState } from 'react';
 import styles from './dot.module.scss';
+import Draggable, { DraggableData, DraggableEvent } from 'react-draggable';
 
 interface DotProps {
-  color?: string;
-  initialSize?: number;
+  initialPosition: number;
+  containerWidth: number;
 }
 
-const Dot = ({ color = 'white', initialSize = 20 }: DotProps) => {
-  const [size, setSize] = useState(initialSize);
+const Dot = ({ initialPosition, containerWidth }: DotProps) => {
+  const MIN_VALUE = 0;
+  const MAX_VALUE = 100;
+
   const [isDragging, setIsDragging] = useState(false);
-
-  const expand = useCallback(() => {
-    setSize((prev) => prev * 1.5);
-  }, [setSize]);
-
-  const shrink = useCallback(() => {
-    setSize(initialSize);
-  }, [initialSize, setSize]);
+  const [currentPosition, setCurrentPosition] = useState({
+    x: initialPosition,
+    y: 0,
+  });
 
   const drag = useCallback(() => {
     setIsDragging(true);
@@ -26,25 +25,56 @@ const Dot = ({ color = 'white', initialSize = 20 }: DotProps) => {
     setIsDragging(false);
   }, [setIsDragging]);
 
-  const customStyles = useMemo(
-    () => ({
-      width: size,
-      height: size,
-      backgroundColor: color,
-      cursor: isDragging ? 'grabbing' : 'grab',
-    }),
-    [color, size, isDragging]
+  const calculateValue = useCallback(
+    (clientX: number) => {
+      const value = Math.round(
+        (clientX / containerWidth) * (MAX_VALUE - MIN_VALUE) + MIN_VALUE
+      );
+      setCurrentPosition({ x: value, y: 0 }); // Actualizar la posición
+    },
+    [containerWidth]
   );
 
+  const handleDrag = useCallback(
+    (e: DraggableEvent, data: DraggableData) => {
+      calculateValue(data.x); // Llamar a la función con la posición actual
+    },
+    [calculateValue]
+  );
+
+  const setInitialPosition = useMemo(() => {
+    const value = containerWidth * (initialPosition / 100);
+    return { x: value, y: 0 };
+  }, [containerWidth, initialPosition]);
+
+  const customStyles: CSSProperties = useMemo(
+    () => ({
+      cursor: isDragging ? 'grabbing' : 'grab',
+    }),
+    [isDragging]
+  );
+
+  if (containerWidth < 0) return null;
+
+  console.info(setInitialPosition);
+
   return (
-    <span
-      onMouseEnter={expand}
-      onMouseLeave={shrink}
-      onMouseDownCapture={drag}
-      onMouseUpCapture={release}
-      className={styles.dot}
-      style={customStyles}
-    />
+    <Draggable
+      axis='x'
+      bounds='parent'
+      defaultPosition={setInitialPosition}
+      onDrag={handleDrag}
+    >
+      <div
+        onMouseDown={drag}
+        onMouseUp={release}
+        style={customStyles}
+        className={styles.dotContainer}
+      >
+        <div className={styles.dot} />
+        <input className={styles.label} value={currentPosition?.x % 100} />
+      </div>
+    </Draggable>
   );
 };
 
