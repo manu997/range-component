@@ -1,9 +1,13 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import styles from './Range.module.scss';
 
-const Range = () => {
-  const min = 0;
-  const max = 100;
+interface RangeProps {
+  fixedValues?: number[];
+}
+
+const Range = ({ fixedValues }: RangeProps) => {
+  const min = fixedValues ? Math.min(...fixedValues) : 0;
+  const max = fixedValues ? Math.max(...fixedValues) : 100;
 
   const rangeRef = useRef<HTMLDivElement>(null);
   const [minValue, setMinValue] = useState(min);
@@ -15,6 +19,19 @@ const Range = () => {
   const [tempMaxValue, setTempMaxValue] = useState(max);
 
   /**
+   * Find the closest value in the fixedValues array
+   */
+  const getClosestFixedValue = useCallback(
+    (value: number) => {
+      if (!fixedValues) return value; // Si no hay valores fijos, usar el valor normal
+      return fixedValues.reduce((prev, curr) =>
+        Math.abs(curr - value) < Math.abs(prev - value) ? curr : prev
+      );
+    },
+    [fixedValues]
+  );
+
+  /**
    * Calculate the new value based on the mouse position
    */
   const calculateNewValue = useCallback(
@@ -22,9 +39,12 @@ const Range = () => {
       const relativeX = clientX - rangeRect.left;
       const newValue = (relativeX / rangeWidth) * (max - min) + min;
       // Keep value between min and max
-      return Math.max(min, Math.min(max, newValue));
+      const clampedValue = Math.max(min, Math.min(max, newValue));
+
+      // Si estamos en modo de valores fijos, ajusta al valor más cercano
+      return fixedValues ? getClosestFixedValue(clampedValue) : clampedValue;
     },
-    [min, max]
+    [min, max, fixedValues, getClosestFixedValue]
   );
 
   /**
@@ -39,21 +59,42 @@ const Range = () => {
       const newValue = calculateNewValue(e.clientX, rangeRect, rangeWidth);
 
       if (isDragging === 'min') {
-        // Min value cannot be greater than max
-        setMinValue(Math.min(newValue, maxValue - 1));
-        setTempMinValue(Math.min(newValue, maxValue - 1));
+        const newMinValue = Math.min(newValue, maxValue - 1); // El valor de min no puede superar max
+        const closestMin = getClosestFixedValue(newMinValue);
+
+        // Si estamos en modo de valores fijos, evitamos que se cruce con el máximo
+        if (fixedValues && closestMin >= maxValue) return;
+
+        setMinValue(closestMin);
+        setTempMinValue(closestMin);
       } else if (isDragging === 'max') {
-        // Max value cannot be lower than min
-        setMaxValue(Math.max(newValue, minValue + 1));
-        setTempMaxValue(Math.max(newValue, minValue + 1));
+        const newMaxValue = Math.max(newValue, minValue + 1); // El valor de max no puede ser menor que min
+        const closestMax = getClosestFixedValue(newMaxValue);
+
+        // Si estamos en modo de valores fijos, evitamos que se cruce con el mínimo
+        if (fixedValues && closestMax <= minValue) return;
+
+        setMaxValue(closestMax);
+        setTempMaxValue(closestMax);
       }
     },
-    [isDragging, minValue, maxValue, calculateNewValue]
+    [
+      isDragging,
+      minValue,
+      maxValue,
+      calculateNewValue,
+      getClosestFixedValue,
+      fixedValues,
+    ]
   );
-
   const handleMouseDown = (type: 'min' | 'max') => setIsDragging(type);
 
-  const handleMouseUp = () => setIsDragging(null);
+  const handleMouseUp = useCallback(() => {
+    setIsDragging(null);
+    // Desconectar el mousemove y mouseup inmediatamente para evitar arrastre accidental
+    window.removeEventListener('mousemove', handleMouseMove);
+    window.removeEventListener('mouseup', handleMouseUp);
+  }, [handleMouseMove]);
 
   useEffect(() => {
     if (isDragging) {
@@ -68,7 +109,7 @@ const Range = () => {
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('mouseup', handleMouseUp);
     };
-  }, [isDragging, handleMouseMove]);
+  }, [isDragging, handleMouseMove, handleMouseUp]);
 
   /**
    * Validate and set the min value
@@ -91,12 +132,23 @@ const Range = () => {
   return (
     <div className={styles.container}>
       <input
-        value={Math.trunc(tempMinValue)}
+        value={fixedValues ? tempMinValue : Math.trunc(tempMinValue)}
         onChange={(e) => setTempMinValue(Number(e.target.value))}
         onBlur={validateAndSetMinValue}
         className={styles.input}
+        disabled={!!fixedValues}
       />
       <div className={styles.rangeLine} ref={rangeRef}>
+        {fixedValues &&
+          fixedValues.map((value) => (
+            <div
+              key={value}
+              className={styles.fixedBullet}
+              style={{
+                left: `${((value - min) / (max - min)) * 100}%`,
+              }}
+            />
+          ))}
         <div
           className={`${styles.bullet} ${styles.active}`}
           style={{
@@ -115,10 +167,11 @@ const Range = () => {
         />
       </div>
       <input
-        value={Math.trunc(tempMaxValue)}
+        value={fixedValues ? tempMaxValue : Math.trunc(tempMaxValue)}
         onChange={(e) => setTempMaxValue(Number(e.target.value))}
         onBlur={validateAndSetMaxValue}
         className={styles.input}
+        disabled={!!fixedValues}
       />
     </div>
   );
