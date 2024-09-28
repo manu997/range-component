@@ -2,10 +2,10 @@
 import { Range } from 'root/components/Range';
 import { BackLink } from 'root/components/BackLink';
 import styles from './exercice1.module.scss';
-import { useMinMax } from 'root/services/useMinMax';
+import { useGetMinMax } from 'root/services/useGetMinMax';
 
 const Exercice1 = () => {
-  const { data, isLoading } = useMinMax();
+  const { data, isLoading } = useGetMinMax();
 
   if (isLoading || !data) return <div>Loading...</div>;
 

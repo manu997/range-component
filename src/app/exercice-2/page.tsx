@@ -2,10 +2,10 @@
 import { Range } from 'root/components/Range';
 import { BackLink } from 'root/components/BackLink';
 import styles from './exercice2.module.scss';
-import { useFixedValues } from 'root/services/useFixedValues';
+import { useGetFixedValues } from 'root/services/useGetFixedValues';
 
 const Exercice2 = () => {
-  const { data, isLoading } = useFixedValues();
+  const { data, isLoading } = useGetFixedValues();
 
   if (isLoading || !data) return <div>Loading...</div>;
 
