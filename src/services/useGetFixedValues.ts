@@ -1,8 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
 
-const getMinMax = async () => {
+const getFixedValues = async () => {
   try {
-    const data = await fetch('https://demo3354008.mockable.io/min-max');
+    const data = await fetch('https://demo3354008.mockable.io/fixed-values');
     const json = await data.json();
     return json;
   } catch (error) {
@@ -10,8 +10,8 @@ const getMinMax = async () => {
   }
 };
 
-export const useMinMax = () =>
+export const useGetFixedValues = () =>
   useQuery({
     queryKey: ['minMax'],
-    queryFn: getMinMax,
+    queryFn: getFixedValues,
   });

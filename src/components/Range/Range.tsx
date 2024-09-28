@@ -14,7 +14,7 @@ const Range = ({ fixedValues, defaultMin, defaultMax }: RangeProps) => {
   const rangeRef = useRef<HTMLDivElement>(null);
   const [minValue, setMinValue] = useState(min);
   const [maxValue, setMaxValue] = useState(max);
-  const [isDragging, setIsDragging] = useState<'min' | 'max' | null>(null); // Saber cuál bullet se está arrastrando
+  const [isDragging, setIsDragging] = useState<'min' | 'max' | null>(null);
 
   // Temporal states to manage inputs values
   const [tempMinValue, setTempMinValue] = useState(min);
@@ -25,7 +25,7 @@ const Range = ({ fixedValues, defaultMin, defaultMax }: RangeProps) => {
    */
   const getClosestFixedValue = useCallback(
     (value: number) => {
-      if (!fixedValues) return value; // Si no hay valores fijos, usar el valor normal
+      if (!fixedValues) return value;
       return fixedValues.reduce((prev, curr) =>
         Math.abs(curr - value) < Math.abs(prev - value) ? curr : prev
       );
@@ -43,7 +43,6 @@ const Range = ({ fixedValues, defaultMin, defaultMax }: RangeProps) => {
       // Keep value between min and max
       const clampedValue = Math.max(min, Math.min(max, newValue));
 
-      // Si estamos en modo de valores fijos, ajusta al valor más cercano
       return fixedValues ? getClosestFixedValue(clampedValue) : clampedValue;
     },
     [min, max, fixedValues, getClosestFixedValue]
@@ -61,19 +60,21 @@ const Range = ({ fixedValues, defaultMin, defaultMax }: RangeProps) => {
       const newValue = calculateNewValue(e.clientX, rangeRect, rangeWidth);
 
       if (isDragging === 'min') {
-        const newMinValue = Math.min(newValue, maxValue - 1); // El valor de min no puede superar max
+        //Avoid min value > max value
+        const newMinValue = Math.min(newValue, maxValue - 1);
         const closestMin = getClosestFixedValue(newMinValue);
 
-        // Si estamos en modo de valores fijos, evitamos que se cruce con el máximo
+        // Avoid cross values when fixedValues
         if (fixedValues && closestMin >= maxValue) return;
 
         setMinValue(closestMin);
         setTempMinValue(closestMin);
       } else if (isDragging === 'max') {
-        const newMaxValue = Math.max(newValue, minValue + 1); // El valor de max no puede ser menor que min
+        //Avoid max value < min value
+        const newMaxValue = Math.max(newValue, minValue + 1);
         const closestMax = getClosestFixedValue(newMaxValue);
 
-        // Si estamos en modo de valores fijos, evitamos que se cruce con el mínimo
+        // Avoid cross values when fixedValues
         if (fixedValues && closestMax <= minValue) return;
 
         setMaxValue(closestMax);
@@ -93,7 +94,6 @@ const Range = ({ fixedValues, defaultMin, defaultMax }: RangeProps) => {
 
   const handleMouseUp = useCallback(() => {
     setIsDragging(null);
-    // Desconectar el mousemove y mouseup inmediatamente para evitar arrastre accidental
     window.removeEventListener('mousemove', handleMouseMove);
     window.removeEventListener('mouseup', handleMouseUp);
   }, [handleMouseMove]);
