@@ -1,5 +1,13 @@
 @use '../../styles/variables' as *;
 
+.container {
+  display: flex;
+}
+
+.input {
+  width: 3rem;
+}
+
 .rangeContainer {
   display: flex;
   align-items: center;

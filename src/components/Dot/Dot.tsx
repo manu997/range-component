@@ -3,19 +3,21 @@ import styles from './dot.module.scss';
 import Draggable, { DraggableData, DraggableEvent } from 'react-draggable';
 
 interface DotProps {
-  initialPosition: number;
-  containerWidth: number;
+  initialPosition: { x: number; y: number };
+  minValue?: number;
+  setMinValue?: (value: number) => void;
+  maxValue?: number;
+  setMaxValue?: (value: number) => void;
 }
 
-const Dot = ({ initialPosition, containerWidth }: DotProps) => {
-  const MIN_VALUE = 0;
-  const MAX_VALUE = 100;
-
+const Dot = ({
+  initialPosition,
+  setMinValue,
+  setMaxValue,
+  minValue,
+  maxValue,
+}: DotProps) => {
   const [isDragging, setIsDragging] = useState(false);
-  const [currentPosition, setCurrentPosition] = useState({
-    x: initialPosition,
-    y: 0,
-  });
 
   const drag = useCallback(() => {
     setIsDragging(true);
@@ -25,27 +27,13 @@ const Dot = ({ initialPosition, containerWidth }: DotProps) => {
     setIsDragging(false);
   }, [setIsDragging]);
 
-  const calculateValue = useCallback(
-    (clientX: number) => {
-      const value = Math.round(
-        (clientX / containerWidth) * (MAX_VALUE - MIN_VALUE) + MIN_VALUE
-      );
-      setCurrentPosition({ x: value, y: 0 }); // Actualizar la posición
-    },
-    [containerWidth]
-  );
-
   const handleDrag = useCallback(
     (e: DraggableEvent, data: DraggableData) => {
-      calculateValue(data.x); // Llamar a la función con la posición actual
+      if (setMaxValue) setMaxValue(data.x);
+      if (setMinValue) setMinValue(data.x);
     },
-    [calculateValue]
+    [setMinValue, setMaxValue]
   );
-
-  const setInitialPosition = useMemo(() => {
-    const value = containerWidth * (initialPosition / 100);
-    return { x: value, y: 0 };
-  }, [containerWidth, initialPosition]);
 
   const customStyles: CSSProperties = useMemo(
     () => ({
@@ -54,16 +42,13 @@ const Dot = ({ initialPosition, containerWidth }: DotProps) => {
     [isDragging]
   );
 
-  if (containerWidth < 0) return null;
-
-  console.info(setInitialPosition);
-
   return (
     <Draggable
       axis='x'
       bounds='parent'
-      defaultPosition={setInitialPosition}
       onDrag={handleDrag}
+      defaultPosition={initialPosition}
+      position={{ x: minValue ?? maxValue ?? 0, y: 0 }}
     >
       <div
         onMouseDown={drag}
@@ -72,7 +57,6 @@ const Dot = ({ initialPosition, containerWidth }: DotProps) => {
         className={styles.dotContainer}
       >
         <div className={styles.dot} />
-        <input className={styles.label} value={currentPosition?.x % 100} />
       </div>
     </Draggable>
   );
