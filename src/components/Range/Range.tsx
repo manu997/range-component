@@ -2,79 +2,58 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import styles from './Range.module.scss';
 
 const Range = () => {
-  // TODO: Fetch from API
   const min = 0;
   const max = 100;
 
   const rangeRef = useRef<HTMLDivElement>(null);
-  const [minValue, setMinValue] = useState(0);
-  const [maxValue, setMaxValue] = useState(100);
-
-  const [tempMinValue, setTempMinValue] = useState(min); // Para manejar inputs temporalmente
-  const [tempMaxValue, setTempMaxValue] = useState(max);
-
+  const [minValue, setMinValue] = useState(min);
+  const [maxValue, setMaxValue] = useState(max);
   const [isDragging, setIsDragging] = useState<'min' | 'max' | null>(null); // Saber cuál bullet se está arrastrando
 
-  const handleMouseDown = (type: 'min' | 'max') => {
-    setIsDragging(type);
-  };
+  // Temporal states to manage inputs values
+  const [tempMinValue, setTempMinValue] = useState(min);
+  const [tempMaxValue, setTempMaxValue] = useState(max);
 
+  /**
+   * Calculate the new value based on the mouse position
+   */
+  const calculateNewValue = useCallback(
+    (clientX: number, rangeRect: DOMRect, rangeWidth: number) => {
+      const relativeX = clientX - rangeRect.left;
+      const newValue = (relativeX / rangeWidth) * (max - min) + min;
+      // Keep value between min and max
+      return Math.max(min, Math.min(max, newValue));
+    },
+    [min, max]
+  );
+
+  /**
+   * Manage mouse movement while dragging
+   */
   const handleMouseMove = useCallback(
     (e: MouseEvent) => {
       if (!isDragging || !rangeRef.current) return;
 
       const rangeRect = rangeRef.current.getBoundingClientRect();
       const rangeWidth = rangeRect.width;
-
-      // Asegurarse de que el valor esté dentro de los límites del rango
-      const newValue = Math.max(
-        min,
-        Math.min(
-          max,
-          ((e.clientX - rangeRect.left) / rangeWidth) * (max - min) + min
-        )
-      );
+      const newValue = calculateNewValue(e.clientX, rangeRect, rangeWidth);
 
       if (isDragging === 'min') {
-        const newMinValue = Math.min(newValue, maxValue - 1);
-        setMinValue(newMinValue); // El valor de min no puede superar el valor de max
-        setTempMinValue(newMinValue);
+        // Min value cannot be greater than max
+        setMinValue(Math.min(newValue, maxValue - 1));
+        setTempMinValue(Math.min(newValue, maxValue - 1));
       } else if (isDragging === 'max') {
-        const newMaxValue = Math.max(newValue, minValue + 1);
-        setMaxValue(newMaxValue); // El valor de max no puede ser menor que min
-        setTempMaxValue(newMaxValue);
+        // Max value cannot be lower than min
+        setMaxValue(Math.max(newValue, minValue + 1));
+        setTempMaxValue(Math.max(newValue, minValue + 1));
       }
     },
-    [isDragging, maxValue, minValue]
+    [isDragging, minValue, maxValue, calculateNewValue]
   );
 
-  const handleMouseUp = () => {
-    setIsDragging(null); // Dejar de arrastrar cuando se suelta el mouse
-  };
+  const handleMouseDown = (type: 'min' | 'max') => setIsDragging(type);
 
-  // Función para actualizar el valor mínimo desde el input
-  const handleMinInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setTempMinValue(Number(e.target.value));
-  };
-
-  // Función para validar el valor mínimo cuando el usuario termina de escribir
-  const handleMinInputBlur = () => {
-    const validMinValue = Math.min(Math.max(tempMinValue, min), maxValue - 1);
-    setMinValue(validMinValue);
-    setTempMinValue(validMinValue);
-  };
-
-  // Función para actualizar el valor máximo desde el input
-  const handleMaxInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setTempMaxValue(Number(e.target.value));
-  };
-
-  // Función para validar el valor máximo cuando el usuario termina de escribir
-  const handleMaxInputBlur = () => {
-    const validMaxValue = Math.max(Math.min(tempMaxValue, max), minValue + 1);
-    setMaxValue(validMaxValue);
-    setTempMaxValue(validMaxValue);
-  };
+  const handleMouseUp = () => setIsDragging(null);
 
   useEffect(() => {
     if (isDragging) {
@@ -89,14 +68,32 @@ const Range = () => {
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('mouseup', handleMouseUp);
     };
-  }, [handleMouseMove, isDragging]);
+  }, [isDragging, handleMouseMove]);
+
+  /**
+   * Validate and set the min value
+   */
+  const validateAndSetMinValue = useCallback(() => {
+    const validMinValue = Math.min(Math.max(tempMinValue, min), maxValue - 1);
+    setMinValue(validMinValue);
+    setTempMinValue(validMinValue);
+  }, [tempMinValue, min, maxValue]);
+
+  /**
+   * Validate and set the max value
+   */
+  const validateAndSetMaxValue = useCallback(() => {
+    const validMaxValue = Math.max(Math.min(tempMaxValue, max), minValue + 1);
+    setMaxValue(validMaxValue);
+    setTempMaxValue(validMaxValue);
+  }, [tempMaxValue, max, minValue]);
 
   return (
     <div className={styles.container}>
       <input
         value={Math.trunc(tempMinValue)}
-        onChange={handleMinInputChange}
-        onBlur={handleMinInputBlur}
+        onChange={(e) => setTempMinValue(Number(e.target.value))}
+        onBlur={validateAndSetMinValue}
         className={styles.input}
       />
       <div className={styles.rangeLine} ref={rangeRef}>
@@ -119,8 +116,8 @@ const Range = () => {
       </div>
       <input
         value={Math.trunc(tempMaxValue)}
-        onChange={handleMaxInputChange}
-        onBlur={handleMaxInputBlur}
+        onChange={(e) => setTempMaxValue(Number(e.target.value))}
+        onBlur={validateAndSetMaxValue}
         className={styles.input}
       />
     </div>
