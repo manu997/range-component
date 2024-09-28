@@ -3,11 +3,13 @@ import styles from './Range.module.scss';
 
 interface RangeProps {
   fixedValues?: number[];
+  defaultMin?: number;
+  defaultMax?: number;
 }
 
-const Range = ({ fixedValues }: RangeProps) => {
-  const min = fixedValues ? Math.min(...fixedValues) : 0;
-  const max = fixedValues ? Math.max(...fixedValues) : 100;
+const Range = ({ fixedValues, defaultMin, defaultMax }: RangeProps) => {
+  const min = fixedValues ? Math.min(...fixedValues) : defaultMin ?? 0;
+  const max = fixedValues ? Math.max(...fixedValues) : defaultMax ?? 100;
 
   const rangeRef = useRef<HTMLDivElement>(null);
   const [minValue, setMinValue] = useState(min);

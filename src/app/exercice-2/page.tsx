@@ -2,8 +2,13 @@
 import { Range } from 'root/components/Range';
 import { BackLink } from 'root/components/BackLink';
 import styles from './exercice2.module.scss';
+import { useFixedValues } from 'root/services/useFixedValues';
 
 const Exercice2 = () => {
+  const { data, isLoading } = useFixedValues();
+
+  if (isLoading || !data) return <div>Loading...</div>;
+
   return (
     <>
       <header>
@@ -11,7 +16,7 @@ const Exercice2 = () => {
       </header>
       <main className={styles.content}>
         <h1>Exercice 2</h1>
-        <Range fixedValues={[1.99, 5.99, 10.99, 30.99, 50.99, 70.99]} />
+        <Range fixedValues={data} />
       </main>
     </>
   );
