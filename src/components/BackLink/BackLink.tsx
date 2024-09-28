@@ -5,8 +5,8 @@ import styles from './backLink.module.scss';
 
 const BackLink = ({ to }: { to: string }) => {
   return (
-    <Link className={`${styles.backLink}`} href={to}>
-      <FontAwesomeIcon icon={faArrowLeft} />
+    <Link className={styles.backLink} href={to}>
+      <FontAwesomeIcon icon={faArrowLeft} className={styles.backLinkIcon} />
       Back
     </Link>
   );

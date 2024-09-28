@@ -1,6 +1,11 @@
 @use '../../styles/variables' as *;
 
 .backLink {
-    color: $foreground;
-    text-decoration: none;
-  }
+  color: $foreground;
+  text-decoration: none;
+  margin: 2rem;
+}
+
+.backLinkIcon {
+  margin-right: 0.5rem;
+}
