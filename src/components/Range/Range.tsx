@@ -1,98 +1,99 @@
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import styles from './Range.module.scss';
-import { Dot } from '../Dot';
 
 const Range = () => {
-  const MIN = 0;
-  const MAX = 100;
+  // TODO: Fetch from API
+  const min = 0;
+  const max = 100;
 
   const rangeRef = useRef<HTMLDivElement>(null);
-  const [containerWidth, setContainerWidth] = useState(-1);
   const [minValue, setMinValue] = useState(0);
   const [maxValue, setMaxValue] = useState(100);
+  const [isDragging, setIsDragging] = useState<'min' | 'max' | null>(null); // Saber cuál bullet se está arrastrando
 
-  const valueInRange = useCallback(
-    (value: number) => value >= MIN && value <= MAX,
-    []
-  );
+  const handleMouseDown = (type: 'min' | 'max') => {
+    setIsDragging(type);
+  };
 
-  const parseValue = useCallback(
-    (value: number) =>
-      valueInRange(value) ? value : (value * 100) / containerWidth,
-    [containerWidth, valueInRange]
-  );
+  const handleMouseMove = useCallback(
+    (e: MouseEvent) => {
+      if (!isDragging || !rangeRef.current) return;
 
-  const parseMaxPosition = useCallback(
-    (e: string) => {
-      const value = parseInt(e);
-      if (!isNaN(value)) {
-        setMaxValue((prev) => (valueInRange(parseValue(value)) ? value : prev));
-      } else {
-        setMaxValue(0);
+      const rangeRect = rangeRef.current.getBoundingClientRect();
+      const rangeWidth = rangeRect.width;
+
+      // Asegurarse de que el valor esté dentro de los límites del rango
+      let newValue = Math.max(
+        min,
+        Math.min(
+          max,
+          ((e.clientX - rangeRect.left) / rangeWidth) * (max - min) + min
+        )
+      );
+
+      // Asegurarse de que el valor esté dentro de los límites del rango
+      newValue = Math.max(min, Math.min(max, newValue));
+
+      if (isDragging === 'min') {
+        setMinValue(Math.min(newValue, maxValue - 1)); // El valor de min no puede superar el valor de max
+      } else if (isDragging === 'max') {
+        setMaxValue(Math.max(newValue, minValue + 1)); // El valor de max no puede ser menor que min
       }
     },
-    [valueInRange, parseValue]
+    [isDragging, maxValue, minValue]
   );
 
-  const parseMinPosition = useCallback(
-    (e: string) => {
-      const value = parseInt(e);
-      if (!isNaN(value)) {
-        setMinValue((prev) => (valueInRange(parseValue(value)) ? value : prev));
-      } else {
-        setMinValue(0);
-      }
-    },
-    [valueInRange, parseValue]
-  );
-
-  const initialMaxValue = useMemo(() => {
-    const value = containerWidth * (maxValue / 100);
-    return { x: value, y: 0 };
-  }, [containerWidth, maxValue]);
+  const handleMouseUp = () => {
+    setIsDragging(null); // Dejar de arrastrar cuando se suelta el mouse
+  };
 
   useEffect(() => {
-    const updateWidth = () => {
-      if (rangeRef.current) {
-        setContainerWidth(rangeRef.current.clientWidth);
-      }
-    };
-    updateWidth();
-    window.addEventListener('resize', updateWidth);
+    if (isDragging) {
+      window.addEventListener('mousemove', handleMouseMove);
+      window.addEventListener('mouseup', handleMouseUp);
+    } else {
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+    }
+
     return () => {
-      window.removeEventListener('resize', updateWidth);
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
     };
-  }, []);
+  }, [handleMouseMove, isDragging]);
 
   return (
     <div className={styles.container}>
       <input
-        value={parseValue(minValue)}
-        onChange={(e) => parseMinPosition(e.target.value)}
+        value={minValue.toFixed(2)}
+        onChange={(e) =>
+          setMinValue(Math.min(Number(e.target.value), maxValue - 1))
+        }
         className={styles.input}
       />
-      <div className={styles.rangeContainer} ref={rangeRef}>
-        <div className={styles.rangeLine} />
-        <Dot
-          setMinValue={setMinValue}
-          minValue={minValue}
-          initialPosition={{ x: 0, y: 0 }}
+      <div className={styles.rangeLine} ref={rangeRef}>
+        <div
+          className={`${styles.bullet} ${styles.active}`}
+          style={{
+            left: `${((minValue - min) / (max - min)) * 100}%`,
+            backgroundColor: 'aqua',
+          }}
+          onMouseDown={() => handleMouseDown('min')}
         />
-        <Dot
-          setMaxValue={setMaxValue}
-          maxValue={maxValue}
-          initialPosition={initialMaxValue}
+        <div
+          className={`${styles.bullet} ${styles.active}`}
+          style={{
+            left: `${((maxValue - min) / (max - min)) * 100}%`,
+            backgroundColor: 'red',
+          }}
+          onMouseDown={() => handleMouseDown('max')}
         />
       </div>
       <input
-        value={parseValue(maxValue)}
-        onChange={(e) => parseMaxPosition(e.target.value)}
+        value={maxValue.toFixed(2)}
+        onChange={(e) =>
+          setMaxValue(Math.max(Number(e.target.value), minValue + 1))
+        }
         className={styles.input}
       />
     </div>
