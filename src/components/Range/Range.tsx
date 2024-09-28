@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import styles from './Range.module.scss';
+import { useFixedValues } from './hooks/useFixedValues';
 
 interface RangeProps {
   fixedValues?: number[];
@@ -11,6 +12,8 @@ const Range = ({ fixedValues, defaultMin, defaultMax }: RangeProps) => {
   const min = fixedValues ? Math.min(...fixedValues) : defaultMin ?? 0;
   const max = fixedValues ? Math.max(...fixedValues) : defaultMax ?? 100;
 
+  const { getClosestFixedValue } = useFixedValues(fixedValues);
+
   const rangeRef = useRef<HTMLDivElement>(null);
   const [minValue, setMinValue] = useState(min);
   const [maxValue, setMaxValue] = useState(max);
@@ -19,19 +22,6 @@ const Range = ({ fixedValues, defaultMin, defaultMax }: RangeProps) => {
   // Temporal states to manage inputs values
   const [tempMinValue, setTempMinValue] = useState(min);
   const [tempMaxValue, setTempMaxValue] = useState(max);
-
-  /**
-   * Find the closest value in the fixedValues array
-   */
-  const getClosestFixedValue = useCallback(
-    (value: number) => {
-      if (!fixedValues) return value;
-      return fixedValues.reduce((prev, curr) =>
-        Math.abs(curr - value) < Math.abs(prev - value) ? curr : prev
-      );
-    },
-    [fixedValues]
-  );
 
   /**
    * Calculate the new value based on the mouse position
