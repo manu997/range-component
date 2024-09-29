@@ -6,8 +6,6 @@ import { getFixedValues } from 'root/services';
 const Exercice2 = async () => {
   const fixedValues = await getFixedValues();
 
-  console.info('Fixed values:', fixedValues);
-
   if (!fixedValues) return null;
 
   return (
