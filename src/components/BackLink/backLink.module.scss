@@ -1,7 +1,5 @@
-@use '../../styles/variables' as *;
-
 .backLink {
-  color: $foreground;
+  color: var(--foreground);
   text-decoration: none;
   margin: 2rem;
 }

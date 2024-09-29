@@ -143,18 +143,22 @@ const Range = ({ fixedValues, defaultMin, defaultMax }: RangeProps) => {
           ))}
         <div
           className={`${styles.bullet} ${styles.active}`}
-          style={{
-            left: `${((minValue - min) / (max - min)) * 100}%`,
-            backgroundColor: 'aqua',
-          }}
+          style={
+            {
+              '--bulletPosition': `${((minValue - min) / (max - min)) * 100}%`,
+              '--bulletColor': 'aqua',
+            } as React.CSSProperties
+          }
           onMouseDown={() => handleMouseDown('min')}
         />
         <div
           className={`${styles.bullet} ${styles.active}`}
-          style={{
-            left: `${((maxValue - min) / (max - min)) * 100}%`,
-            backgroundColor: 'red',
-          }}
+          style={
+            {
+              '--bulletPosition': `${((maxValue - min) / (max - min)) * 100}%`,
+              '--bulletColor': 'red',
+            } as React.CSSProperties
+          }
           onMouseDown={() => handleMouseDown('max')}
         />
       </div>
