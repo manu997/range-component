@@ -1,6 +1,7 @@
+'use client';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import styles from './Range.module.scss';
-import { useFixedValues } from './hooks/useFixedValues';
+import { getClosestFixedValue } from 'root/utils';
 
 interface RangeProps {
   fixedValues?: number[];
@@ -11,8 +12,6 @@ interface RangeProps {
 const Range = ({ fixedValues, defaultMin, defaultMax }: RangeProps) => {
   const min = fixedValues ? Math.min(...fixedValues) : defaultMin ?? 0;
   const max = fixedValues ? Math.max(...fixedValues) : defaultMax ?? 100;
-
-  const { getClosestFixedValue } = useFixedValues(fixedValues);
 
   const rangeRef = useRef<HTMLDivElement>(null);
   const [minValue, setMinValue] = useState(min);
@@ -33,9 +32,11 @@ const Range = ({ fixedValues, defaultMin, defaultMax }: RangeProps) => {
       // Keep value between min and max
       const clampedValue = Math.max(min, Math.min(max, newValue));
 
-      return fixedValues ? getClosestFixedValue(clampedValue) : clampedValue;
+      return fixedValues
+        ? getClosestFixedValue(clampedValue, fixedValues)
+        : clampedValue;
     },
-    [min, max, fixedValues, getClosestFixedValue]
+    [min, max, fixedValues]
   );
 
   /**
@@ -52,7 +53,7 @@ const Range = ({ fixedValues, defaultMin, defaultMax }: RangeProps) => {
       if (isDragging === 'min') {
         //Avoid min value > max value
         const newMinValue = Math.min(newValue, maxValue - 1);
-        const closestMin = getClosestFixedValue(newMinValue);
+        const closestMin = getClosestFixedValue(newMinValue, fixedValues);
 
         // Avoid cross values when fixedValues
         if (fixedValues && closestMin >= maxValue) return;
@@ -62,7 +63,7 @@ const Range = ({ fixedValues, defaultMin, defaultMax }: RangeProps) => {
       } else if (isDragging === 'max') {
         //Avoid max value < min value
         const newMaxValue = Math.max(newValue, minValue + 1);
-        const closestMax = getClosestFixedValue(newMaxValue);
+        const closestMax = getClosestFixedValue(newMaxValue, fixedValues);
 
         // Avoid cross values when fixedValues
         if (fixedValues && closestMax <= minValue) return;
@@ -71,14 +72,7 @@ const Range = ({ fixedValues, defaultMin, defaultMax }: RangeProps) => {
         setTempMaxValue(closestMax);
       }
     },
-    [
-      isDragging,
-      minValue,
-      maxValue,
-      calculateNewValue,
-      getClosestFixedValue,
-      fixedValues,
-    ]
+    [isDragging, minValue, maxValue, calculateNewValue, fixedValues]
   );
   const handleMouseDown = (type: 'min' | 'max') => setIsDragging(type);
 
