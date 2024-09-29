@@ -1,13 +1,14 @@
-'use client';
 import { Range } from 'root/components/Range';
 import { BackLink } from 'root/components/BackLink';
 import styles from './exercice2.module.scss';
-import { useGetFixedValues } from 'root/services/useGetFixedValues';
+import { getFixedValues } from 'root/services';
 
-const Exercice2 = () => {
-  const { data, isLoading } = useGetFixedValues();
+const Exercice2 = async () => {
+  const fixedValues = await getFixedValues();
 
-  if (isLoading || !data) return <div>Loading...</div>;
+  console.info('Fixed values:', fixedValues);
+
+  if (!fixedValues) return null;
 
   return (
     <>
@@ -16,7 +17,7 @@ const Exercice2 = () => {
       </header>
       <main className={styles.content}>
         <h1>Exercice 2</h1>
-        <Range fixedValues={data} />
+        <Range fixedValues={fixedValues} />
       </main>
     </>
   );

@@ -1,7 +1,6 @@
 import styles from './layout.module.scss';
 import { config } from '@fortawesome/fontawesome-svg-core';
 import '@fortawesome/fontawesome-svg-core/styles.css';
-import Providers from './providers';
 import '../styles/globals.scss';
 
 config.autoAddCss = false;
@@ -13,9 +12,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang='en'>
-      <body className={`${styles.body}`}>
-        <Providers>{children}</Providers>
-      </body>
+      <body className={`${styles.body}`}>{children}</body>
     </html>
   );
 }

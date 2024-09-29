@@ -1,13 +1,12 @@
-'use client';
 import { Range } from 'root/components/Range';
 import { BackLink } from 'root/components/BackLink';
 import styles from './exercice1.module.scss';
-import { useGetMinMax } from 'root/services/useGetMinMax';
+import { getMinMax } from 'root/services';
 
-const Exercice1 = () => {
-  const { data, isLoading } = useGetMinMax();
+const Exercice1 = async () => {
+  const minMax = await getMinMax();
 
-  if (isLoading || !data) return <div>Loading...</div>;
+  if (!minMax) return null;
 
   return (
     <>
@@ -16,7 +15,7 @@ const Exercice1 = () => {
       </header>
       <main className={styles.content}>
         <h1>Exercice 1</h1>
-        <Range defaultMax={data.max} defaultMin={data.min} />
+        <Range defaultMax={minMax.max} defaultMin={minMax.min} />
       </main>
     </>
   );
