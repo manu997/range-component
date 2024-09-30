@@ -1,6 +1,6 @@
 'use client';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import styles from './Range.module.scss';
+import styles from './range.module.scss';
 import { getClosestFixedValue } from '../../utils';
 
 interface RangeProps {
