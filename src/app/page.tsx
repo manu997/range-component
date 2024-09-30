@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import styles from './page.module.scss';
 
-export default function Home() {
+const Home = () => {
   return (
     <main className={styles.menu}>
       <ul>
@@ -14,4 +14,6 @@ export default function Home() {
       </ul>
     </main>
   );
-}
+};
+
+export default Home;

@@ -6,7 +6,8 @@
     "dev": "next dev --port 8080",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "test": "vitest"
   },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^6.6.0",
@@ -17,12 +18,18 @@
     "react-dom": "^18"
   },
   "devDependencies": {
+    "@testing-library/dom": "^10.4.0",
+    "@testing-library/jest-dom": "^6.5.0",
+    "@testing-library/react": "^16.0.1",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
+    "@vitejs/plugin-react": "^4.3.2",
     "eslint": "^8",
     "eslint-config-next": "14.2.13",
+    "jsdom": "^25.0.1",
     "sass": "^1.79.3",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "^2.1.1"
   }
 }

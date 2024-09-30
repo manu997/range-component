@@ -1,7 +1,7 @@
 'use client';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import styles from './Range.module.scss';
-import { getClosestFixedValue } from 'root/utils';
+import { getClosestFixedValue } from '../../utils';
 
 interface RangeProps {
   fixedValues?: number[];
@@ -118,6 +118,7 @@ const Range = ({ fixedValues, defaultMin, defaultMax }: RangeProps) => {
   return (
     <div className={styles.container}>
       <input
+        data-testid='min-input'
         value={fixedValues ? tempMinValue : Math.trunc(tempMinValue)}
         onChange={(e) => setTempMinValue(Number(e.target.value))}
         onBlur={validateAndSetMinValue}
@@ -128,6 +129,7 @@ const Range = ({ fixedValues, defaultMin, defaultMax }: RangeProps) => {
         {fixedValues &&
           fixedValues.map((value) => (
             <div
+              data-testid={`fixed-bullet-${value}`}
               key={value}
               className={styles.fixedBullet}
               style={{
@@ -136,6 +138,7 @@ const Range = ({ fixedValues, defaultMin, defaultMax }: RangeProps) => {
             />
           ))}
         <div
+          data-testid='min-bullet'
           className={`${styles.bullet} ${styles.active}`}
           style={
             {
@@ -146,6 +149,7 @@ const Range = ({ fixedValues, defaultMin, defaultMax }: RangeProps) => {
           onMouseDown={() => handleMouseDown('min')}
         />
         <div
+          data-testid='max-bullet'
           className={`${styles.bullet} ${styles.active}`}
           style={
             {
@@ -157,6 +161,7 @@ const Range = ({ fixedValues, defaultMin, defaultMax }: RangeProps) => {
         />
       </div>
       <input
+        data-testid='max-input'
         value={fixedValues ? tempMaxValue : Math.trunc(tempMaxValue)}
         onChange={(e) => setTempMaxValue(Number(e.target.value))}
         onBlur={validateAndSetMaxValue}
