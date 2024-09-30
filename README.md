@@ -1,36 +1,62 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Range Component in Next.js
 
-## Getting Started
+This project is a technical exercise focused on creating a `<Range />` component with two modes of operation: a normal range slider and a range slider with fixed values. The project is built using **Next.js** 14 and **SCSS** for styling.
 
-First, run the development server:
+## Features
+
+- **Custom Range Component**: Supports both standard range and fixed-value ranges.
+- **TypeScript Support**: Provides strong typing throughout the project.
+- **SCSS Modules**: Scoped styling for the components to avoid style conflicts.
+- **Server-Side Rendering (SSR)**: One of the components is implemented as a Server Component in Next.js for enhanced performance.
+
+## Technologies Used
+
+- **Next.js 14**: Server-side rendering and React framework for building fast web applications.
+- **TypeScript**: Adds type safety and improves development efficiency.
+- **SCSS Modules**: Used for modular and reusable styling.
+- **React**: Component-based library for building user interfaces.
+- **ESLint**: Code linting and formatting tool to ensure code quality and consistency.
+
+## Installation
+
+1. **Clone the repository:**
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+    git clone https://github.com/manu997/range-component.git
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. **Navigate to the project directory**
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+   cd range-component
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+3. **Install dependencies**
 
-## Learn More
+```bash
+   npm i
+```
 
-To learn more about Next.js, take a look at the following resources:
+## Run the project
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+1. **Development mode**
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```bash
+   npm run dev
+```
 
-## Deploy on Vercel
+1. **Production mode**
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```bash
+   npm run build
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```bash
+   npm start
+```
+
+## Run the tests
+
+```bash
+   npm test
+```
