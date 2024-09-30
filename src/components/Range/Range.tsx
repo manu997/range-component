@@ -78,9 +78,7 @@ const Range = ({ fixedValues, defaultMin, defaultMax }: RangeProps) => {
 
   const handleMouseUp = useCallback(() => {
     setIsDragging(null);
-    window.removeEventListener('mousemove', handleMouseMove);
-    window.removeEventListener('mouseup', handleMouseUp);
-  }, [handleMouseMove]);
+  }, []);
 
   useEffect(() => {
     if (isDragging) {
@@ -138,6 +136,7 @@ const Range = ({ fixedValues, defaultMin, defaultMax }: RangeProps) => {
             />
           ))}
         <div
+          onDragStart={(e) => e.preventDefault()} // Avoid bug while dragging
           data-testid='min-bullet'
           className={`${styles.bullet} ${styles.active}`}
           style={
@@ -149,6 +148,7 @@ const Range = ({ fixedValues, defaultMin, defaultMax }: RangeProps) => {
           onMouseDown={() => handleMouseDown('min')}
         />
         <div
+          onDragStart={(e) => e.preventDefault()} // Avoid bug while dragging
           data-testid='max-bullet'
           className={`${styles.bullet} ${styles.active}`}
           style={
